@@ -1,0 +1,6 @@
+.pre {
+  background-color: var(--accent-glow);
+  font-size: 12px;
+  color: var(--text-primary);
+  padding: var(--space-4);
+}

@@ -1,0 +1,17 @@
+.turbo
+
+# generated files
+dist/
+
+# OS / IDE
+.vscode
+
+# dependencies
+node_modules/
+
+# misc
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

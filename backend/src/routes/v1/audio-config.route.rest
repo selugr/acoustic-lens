@@ -1,0 +1,7 @@
+POST http://localhost:3020/api/audio-config/textToAudioProfile HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "text": "I want the voice to sound like in a medium size church some meters away from my position on the left"
+}
