@@ -1,5 +1,5 @@
 import audioProfileFromTextController from './audioProfileFromTextController'
 
-export const audioConfigController = {
+export default {
 	audioProfileFromTextController,
 }

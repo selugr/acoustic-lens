@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import audioConfigRoutes from './v1/audio-config.route'
-import voicesRoutes from './v1/voices.route'
+import audioConfigRoutes from './v1/audio-config/router'
+import voicesRoutes from './v1/voices/router'
 
 // import userRoutes from './v1/user.route'; // Example of another route
 const router = Router()
