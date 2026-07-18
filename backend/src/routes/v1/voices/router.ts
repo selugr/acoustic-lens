@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import textToSpeech from '../../controllers/voices/controller';
+import textToSpeech from '../../../controllers/voices/controller';
 
 const router = Router();
 

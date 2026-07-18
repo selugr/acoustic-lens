@@ -1,6 +1,6 @@
 import type { SpatialAudioConfig } from '@common/types'
 import { generateStructuredOutput } from '../../../clients/groq/generate-structured-output.client'
-import RESPONSE_FORMAT from './config/audio-profile.schema'
+import RESPONSE_FORMAT from './config/audioProfileSchema'
 import SYSTEM_PROMPT from './config/systemPrompt'
 import normalize from './normalize'
 

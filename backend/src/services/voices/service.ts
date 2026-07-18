@@ -1,5 +1,5 @@
-import speechFromText from './speech-from-text';
+import speechFromText from './speechFromText'
 
 export const voicesService = {
-  speechFromText,
-};
+	speechFromText,
+}

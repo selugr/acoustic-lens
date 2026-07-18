@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import audioConfigController from '../../controllers/audio-config/controller';
+import audioConfigController from '../../../controllers/audio-config/controller';
 
 const router = Router();
 

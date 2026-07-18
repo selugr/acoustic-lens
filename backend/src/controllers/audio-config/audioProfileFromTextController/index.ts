@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express'
-import { audioConfigService } from '../../../services/audio-config/audio-config.service'
+import { audioConfigService } from '../../../services/audio-config/service'
 
 export default async function audioProfileFromTextController(req: Request, res: Response, next: NextFunction) {
 	try {
