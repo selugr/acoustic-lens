@@ -295,7 +295,7 @@ export default function normalize(raw: unknown): SpatialAudioConfig {
 
 	const impulse_response_type = pickEnum(
 		rawAcoustic.impulse_response_type,
-		['synthetic', 'recorded', 'hybrid', 'procedural'],
+		['synthetic', 'recorded', 'hybrid', 'procedural', 'none'],
 		DEFAULT_ACOUSTIC.impulse_response_type,
 	)
 
