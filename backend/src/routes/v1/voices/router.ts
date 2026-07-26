@@ -1,9 +1,10 @@
-import { Router } from 'express';
-import textToSpeech from '../../../controllers/voices/controller';
+import { Router } from 'express'
+import textToSpeech from '../../../controllers/voices/controller'
+import { validateText } from '../../../middleware'
 
-const router = Router();
+const router = Router()
 
-router.post('/textToSpeech', textToSpeech);
+router.post('/textToSpeech', validateText, textToSpeech)
 // router.post('/getVoices', getVoices); // keep for future
 
-export default router;
+export default router

@@ -1,8 +1,9 @@
-import { Router } from 'express';
-import audioConfigController from '../../../controllers/audio-config/controller';
+import { Router } from 'express'
+import audioConfigController from '../../../controllers/audio-config/controller'
+import { validateText } from '../../../middleware'
 
-const router = Router();
+const router = Router()
 
-router.post('/textToAudioProfile', audioConfigController.audioProfileFromTextController);
+router.post('/textToAudioProfile', validateText, audioConfigController.audioProfileFromTextController)
 
-export default router;
+export default router
