@@ -1,17 +1,9 @@
-import express from 'express'
-import apiRoutes from './routes/index'
-import { validateText } from './middleware'
-import errorHandler from './middleware/errorHandler.middleware'
-
-const app = express()
+import { createApp } from './app'
 
 // TODO Cuota protection
 // TODO Identify non related questions
 
-app.use(express.json())
-app.use(validateText)
-app.use('/api', apiRoutes)
-app.use(errorHandler)
+const app = createApp()
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
