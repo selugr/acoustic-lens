@@ -2,6 +2,7 @@
 
 # generated files
 dist/
+coverage/
 
 # OS / IDE
 .vscode
