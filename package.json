@@ -6,6 +6,7 @@
 		"build": "turbo run build",
 		"dev": "turbo run dev",
 		"check-types": "turbo run check-types",
+		"test": "turbo run test",
 		"format-and-lint": "biome check .",
 		"format-and-lint:fix": "biome check . --write"
 	},
@@ -16,12 +17,6 @@
 		"@types/node": "^24.13.2"
 	},
 	"packageManager": "pnpm@10.22.0",
-	"devEngines": {
-		"packageManager": {
-			"name": "pnpm",
-			"version": "10.22.0"
-		}
-	},
 	"engines": {
 		"node": ">=24.x"
 	}
