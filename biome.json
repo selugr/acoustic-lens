@@ -8,7 +8,9 @@
 			"**/*.tsx",
 			"**/*.json",
 			"!**/node_modules",
-			"!**/dist"
+			"!**/dist",
+			"!**/.turbo",
+			"!**/coverage"
 		]
 	},
 	"formatter": {
