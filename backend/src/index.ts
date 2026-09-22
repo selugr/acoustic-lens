@@ -1,4 +1,4 @@
-import { createApp } from './app'
+import { createApp } from './app.mts'
 
 // TODO Cuota protection
 // TODO Identify non related questions
