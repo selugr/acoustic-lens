@@ -1,6 +1,6 @@
 import request from 'supertest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createApp } from './app.mts'
+import { createApp } from './app'
 import { textToSpeech } from './clients/elevenLabs/text-to-speech.client'
 import { generateStructuredOutput } from './clients/groq/generate-structured-output.client'
 

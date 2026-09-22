@@ -4,17 +4,17 @@
 	"license": "ISC",
 	"version": "0.0.1",
 	"description": "",
-	"main": "dist/index.cjs",
+	"main": "dist/server.js",
 	"type": "module",
 	"scripts": {
-		"dev": "tsx --env-file .env --watch-path=./src src/index.ts",
-		"debug": "node --inspect -r tsx --env-file .env src/index.ts",
+		"dev": "tsx --env-file .env --watch-path=./src src/server.ts",
+		"debug": "node --inspect -r tsx --env-file .env src/server.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"build": "tsup",
-		"start:dev": "node --env-file=.env dist/index.cjs",
-		"start": "node dist/index.cjs"
+		"start:dev": "node --env-file=.env dist/server.js",
+		"start": "node dist/server.js"
 	},
 	"dependencies": {
 		"@elevenlabs/elevenlabs-js": "^2.56.0",
