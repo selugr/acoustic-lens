@@ -2,6 +2,7 @@
 	"name": "acoustic-lens",
 	"author": "Selu González",
 	"license": "ISC",
+	"type": "module",
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
