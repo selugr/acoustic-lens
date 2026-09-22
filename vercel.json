@@ -6,7 +6,9 @@
 		},
 		"backend": {
 			"root": "backend",
-			"framework": "express"
+			"framework": "express",
+			"buildCommand": "pnpm run build",
+			"entrypoint": "dist/index.cjs"
 		}
 	},
 	"rewrites": [
