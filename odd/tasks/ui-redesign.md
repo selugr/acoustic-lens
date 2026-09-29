@@ -69,5 +69,7 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 
 - T4F done: tests 161/161, types, biome exit 0, build ok. RED: stale-Pause source swap + emptied, partial-profile crash, RawProfile unmount timer. New `helpers/listenView` normalizer (`toListenView`); player derives from `el.paused` and listens to `emptied`. Retry-no-source test passed first run (T3 already handled it). Commit: `fix(frontend): harden listen step after review`.
 
+- T4F review: medium (481 lines), consent granted, reliability lens → approved and acknowledged (lineage review-db45ee4df90aa233). Reviewed boundary now c196466. Suggestions left as optional follow-ups (not scheduled): RawProfile unmount test relies on timer count (console assert is weak); listenView cut ≤0 branch untested; scene distance ≤0 not rejected.
+
 ## Next step
 Manual visual check in the browser against the canvas; then the user pushes and opens the PR.
