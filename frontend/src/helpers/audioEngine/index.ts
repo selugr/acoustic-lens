@@ -135,3 +135,19 @@ export const buildAudioGraphSync = ({ sourceNode, audioCtx, effectsConfig }: Bui
 		masterGain,
 	}
 }
+
+/**
+ * Switches between the effect chain (space) and the untouched source (dry) by re-routing the
+ * source node only; the graph is not rebuilt, so playback is not interrupted.
+ */
+export const setGraphBypass = (graph: Pick<AudioGraph, 'sourceNode' | 'lowCut' | 'context'>, bypassed: boolean) => {
+	const { sourceNode, lowCut, context } = graph
+	const from = bypassed ? lowCut : context.destination
+	const to = bypassed ? context.destination : lowCut
+	try {
+		sourceNode.disconnect(from)
+	} catch {
+		// Already disconnected: nothing to undo
+	}
+	sourceNode.connect(to)
+}

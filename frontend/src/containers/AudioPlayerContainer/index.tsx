@@ -1,31 +1,91 @@
-// import { useCallback } from 'react'
-// import { AudioPlayer } from '../../components/AudioPlayer'
+import { useEffect, useState } from 'react'
+import { AbCompare } from '../../components/AbCompare'
+import { Alert } from '../../components/Alert'
+import { Transport } from '../../components/Transport'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import styles from './styles.module.css'
 
+/** Playback UI. The <audio> element stays mounted (hidden): the Web Audio graph reads from it. */
 export const AudioPlayerContainer: React.FC = () => {
-	const { audioRef, audioBlobUrl, contextState } = useSpatialAudio()
+	const { audioRef, audioBlobUrl, contextState, isEffectApplied, isBypassed, setBypassed, resumeAudio } =
+		useSpatialAudio()
+	const [playing, setPlaying] = useState(false)
+	const [currentTime, setCurrentTime] = useState(0)
+	const [duration, setDuration] = useState(0)
 
-	// const handlePlay = useCallback(() => {
-	// 	if (graph?.context.state === 'suspended') {
-	// 		graph.context.resume()
-	// 	}
-	// }, [graph])
+	useEffect(() => {
+		const el = audioRef.current
+		if (!el || !audioBlobUrl) return
+		const sync = () => {
+			setCurrentTime(el.currentTime)
+			setDuration(Number.isFinite(el.duration) ? el.duration : 0)
+		}
+		const onPlay = () => setPlaying(true)
+		const onPause = () => setPlaying(false)
+		// Loading a new source resets the element to paused without a 'pause' event
+		const onEmptied = () => {
+			setPlaying(false)
+			setCurrentTime(0)
+			setDuration(0)
+		}
+		const events: [string, () => void][] = [
+			['loadedmetadata', sync],
+			['durationchange', sync],
+			['timeupdate', sync],
+			['play', onPlay],
+			['pause', onPause],
+			['ended', onPause],
+			['emptied', onEmptied],
+		]
+		for (const [name, handler] of events) el.addEventListener(name, handler)
+		sync()
+		setPlaying(!el.paused)
+		return () => {
+			for (const [name, handler] of events) el.removeEventListener(name, handler)
+		}
+	}, [audioRef, audioBlobUrl])
+
+	if (!audioBlobUrl) return null
+
+	const handleToggle = async () => {
+		const el = audioRef.current
+		if (!el) return
+		if (!el.paused) {
+			el.pause()
+			return
+		}
+		try {
+			if (contextState === 'suspended') await resumeAudio()
+			await el.play()
+		} catch {
+			// Playback was blocked or interrupted; the play/pause events keep the UI in sync
+		}
+	}
+
+	const handleSeek = (seconds: number) => {
+		if (!audioRef.current) return
+		audioRef.current.currentTime = seconds
+		setCurrentTime(seconds)
+	}
 
 	return (
-		<>
-			{/* <AudioPlayer currentTime="1:00" isFxOn onPlayClick={() => {}} status="STOP" /> */}
-			{audioBlobUrl && (
-				<div>
-					<audio className={styles.audio} ref={audioRef} src={audioBlobUrl || undefined} controls />
-					{contextState && (
-						<div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
-							Audio Context State:{' '}
-							<strong style={{ color: contextState === 'running' ? '#4caf50' : '#ff9800' }}>{contextState}</strong>
-						</div>
-					)}
-				</div>
+		<div className={styles.player}>
+			<audio ref={audioRef} src={audioBlobUrl} hidden preload="metadata">
+				<track kind="captions" />
+			</audio>
+			{contextState === 'suspended' && (
+				<Alert variant="warning">Audio is paused by the browser. Press play to start the engine.</Alert>
 			)}
-		</>
+			<div className={styles.compare}>
+				<AbCompare bypassed={isBypassed} disabled={!isEffectApplied} onChange={setBypassed} />
+			</div>
+			<Transport
+				playing={playing}
+				currentTime={currentTime}
+				duration={duration}
+				onToggle={() => void handleToggle()}
+				onSeek={handleSeek}
+			/>
+		</div>
 	)
 }

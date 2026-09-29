@@ -1,87 +1,120 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Actions } from '../../components/Actions'
+import { Alert } from '../../components/Alert'
 import { Button } from '../../components/Button'
-import { Card } from '../../components/Card'
+import { Chip } from '../../components/Chip'
+import { Field } from '../../components/Field'
 import { Icon } from '../../components/Icon'
-import { Label } from '../../components/Label'
-import Pre from '../../components/Pre'
-import { Textarea } from '../../components/TextArea'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import textToAudioProfile from '../../services/audioConfig/textToAudioProfile'
 
+const MIN_LENGTH = 5
+const MAX_LENGTH = 100
+const SCENE_FIELD_ID = 'scene-description'
+const EXAMPLES = ['Tiled bathroom, right behind me', 'Concert hall, front row', 'Forest, far away']
+
 export default function AudioProfileGeneratorContainer() {
-	const [text, setText] = useState<string>('')
-	const [error, setError] = useState<string | null>(null)
-	const { setEffectsConfig, effectsConfig, onApplyConfig, onResetConfig, audioBlobUrl } = useSpatialAudio()
+	const [text, setText] = useState('')
+	const [touched, setTouched] = useState(false)
+	const [loading, setLoading] = useState(false)
+	const [failed, setFailed] = useState(false)
+	// Bumped on every new request and on reset; a response only counts if its token is still current
+	const requestToken = useRef(0)
+	const { isEffectApplied, applyEffectsConfig, onResetConfig, audioBlobUrl } = useSpatialAudio()
 
-	const parsedEffectsConfig =
-		effectsConfig && typeof effectsConfig === 'object' ? JSON.stringify(effectsConfig, null, 2) : ''
+	const length = text.trim().length
+	const isValid = length >= MIN_LENGTH && length <= MAX_LENGTH
+	const fieldError = touched && !isValid ? `Enter ${MIN_LENGTH}–${MAX_LENGTH} characters.` : null
 
-	const handleOnChange = (e: React.ChangeEvent) => {
-		const inputText = (e.target as HTMLInputElement | HTMLTextAreaElement).value || ''
-		setText(inputText)
-	}
+	const build = async () => {
+		if (loading || !isValid || !audioBlobUrl) return
 
-	const handleOnClick = async () => {
-		const response = await textToAudioProfile(text)
-		if (!response.success) {
-			return setError(response.error)
+		const token = ++requestToken.current
+		setLoading(true)
+		setFailed(false)
+
+		try {
+			const response = await textToAudioProfile(text)
+			if (token !== requestToken.current) return
+			if (!response.success) {
+				setFailed(true)
+				return
+			}
+			applyEffectsConfig(response.data)
+		} catch {
+			if (token === requestToken.current) setFailed(true)
+		} finally {
+			if (token === requestToken.current) setLoading(false)
 		}
-		setEffectsConfig(response.data)
-		setError(null)
 	}
 
-	if (!audioBlobUrl) return
+	const handleReset = () => {
+		requestToken.current += 1
+		setLoading(false)
+		setFailed(false)
+		onResetConfig()
+	}
+
+	const handleSubmit = (e: React.SubmitEvent) => {
+		e.preventDefault()
+		setTouched(true)
+		void build()
+	}
+
+	const handleRetry = () => {
+		setTouched(true)
+		if (!isValid || !audioBlobUrl) {
+			document.getElementById(SCENE_FIELD_ID)?.focus()
+			return
+		}
+		void build()
+	}
+
+	const pickExample = (example: string) => {
+		setText(example)
+		document.getElementById(SCENE_FIELD_ID)?.focus()
+	}
 
 	return (
-		<Card className="">
-			<h2>Audio Profile</h2>
-			<Label htmlFor="profile-prompt">Profile Prompt</Label>
-			<Textarea
-				id="profile-prompt"
-				name="profile-prompt"
-				placeholder="Describe an audio situation, warmth, clarity, presence, compression..."
-				minLength={5}
-				maxLength={100}
-				onChange={handleOnChange}
+		<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 18 }}>
+			<Field
+				id={SCENE_FIELD_ID}
+				label="Scene description"
+				value={text}
+				onChange={setText}
+				onBlur={() => setTouched(true)}
+				placeholder="e.g. A large stone church, the speaker a few meters to my left."
+				error={fieldError}
+				minLength={MIN_LENGTH}
+				maxLength={MAX_LENGTH}
 			/>
-			{error && <span>{error}</span>}
-			<Actions align="end">
+			<div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+				<span>Try one</span>
+				{EXAMPLES.map((example) => (
+					<Chip key={example} onClick={() => pickExample(example)}>
+						{example}
+					</Chip>
+				))}
+			</div>
+			{failed && (
+				<Alert variant="danger" title="Couldn’t build the space" action={{ label: 'Retry', onClick: handleRetry }}>
+					The profile service didn’t respond. Your description is kept — try again.
+				</Alert>
+			)}
+			<Actions align="between">
+				<Button variant="ghost" onClick={handleReset} disabled={!isEffectApplied} icon={<Icon name="restart" />}>
+					Reset to dry
+				</Button>
 				<Button
 					type="submit"
-					disabled={!audioBlobUrl}
-					onClick={handleOnClick}
-					variant="ghost"
-					icon={<Icon name="soundwave" />}
+					loading={loading}
+					loadingLabel="Building…"
+					disabled={!audioBlobUrl || !isValid}
+					icon={<Icon name="sparkle" />}
 				>
-					Generate Profile
+					Build space
 				</Button>
 			</Actions>
-
-			{/* <AudioProfileConfigContainer /> */}
-			{audioBlobUrl && parsedEffectsConfig && (
-				<>
-					{parsedEffectsConfig && (
-						<details>
-							<summary>JSON Config</summary>
-							<Pre>{parsedEffectsConfig}</Pre>
-						</details>
-					)}
-
-					<Actions align="between">
-						<Button onClick={onResetConfig} variant="ghost" icon={<Icon name="restart" />}>
-							Reset
-						</Button>
-						{/* <div style={{ display: 'flex', gap: 'var(--space-3)' }}> */}
-						{/* <Button variant="ghost" icon={<Icon name="bypass" />}>
-						Bypass FX
-						</Button> */}
-						<Button onClick={onApplyConfig} variant="secondary" icon={<Icon name="check" />}>
-							Apply
-						</Button>
-					</Actions>
-				</>
-			)}
-		</Card>
+		</form>
 	)
 }

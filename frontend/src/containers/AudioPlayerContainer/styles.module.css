@@ -1,13 +1,21 @@
-.audio::-webkit-media-controls-panel {
-  background-color: var(--accent-glow);
+.player {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.audio::-webkit-media-controls-play-button {
-  background-color: var(--accent-active);
-  border-radius: 50%;
+.compare {
+  display: flex;
 }
 
-.audio::-webkit-media-controls-current-time-display,
-.audio::-webkit-media-controls-time-remaining-display {
-  font-size: 12px;
+/* Mobile: transport pinned to the bottom of the viewport */
+@media (max-width: 1023px) {
+  .player {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    padding: var(--space-3) 0;
+    background-color: var(--bg-panel);
+    border-top: 1px solid var(--border);
+  }
 }
