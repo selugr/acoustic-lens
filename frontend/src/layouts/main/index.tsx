@@ -18,10 +18,10 @@ const SOURCE_TABS = [
 export default function MainLayout() {
 	const [activeTab, setActiveTab] = useState('generate')
 	const tabsId = useId()
-	const { audioBlobUrl, effectsConfig } = useSpatialAudio()
+	const { audioBlobUrl, isEffectApplied } = useSpatialAudio()
 
 	const hasSource = !!audioBlobUrl
-	const hasSpace = !!effectsConfig
+	const hasSpace = isEffectApplied
 
 	return (
 		<div className={styles.layout}>

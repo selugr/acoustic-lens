@@ -14,9 +14,12 @@ interface SpatialAudioState {
 	getSourceVersion: () => number
 	audioRef: React.RefObject<HTMLAudioElement | null>
 	effectsConfig: SpatialAudioConfig | null
-	setEffectsConfig: (config: SpatialAudioConfig) => void
+	setEffectsConfig: (config: SpatialAudioConfig | null) => void
+	/** True once a profile has been applied to the audio graph (and not reset since) */
+	isEffectApplied: boolean
+	/** Stores the config and applies it to the audio graph right away */
+	applyEffectsConfig: (config: SpatialAudioConfig) => void
 	contextState: AudioContextState | null
-	onApplyConfig: () => void
 	onResetConfig: () => void
 }
 
@@ -46,6 +49,7 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 		setAudioLabel(url ? label : null)
 	}, [])
 	const [effectsConfig, setEffectsConfig] = useState<SpatialAudioConfig | null>(null)
+	const [isEffectApplied, setIsEffectApplied] = useState(false)
 	const [contextState, setContextState] = useState<AudioContextState | null>(audioCtx.current.state)
 
 	useEffect(() => {
@@ -65,19 +69,18 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 		}
 	}, [audioBlobUrl])
 
-	const handleOnApplyConfig = useCallback(async () => {
-		if (!sourceNodeRef.current || !effectsConfig) return
+	const applyEffectsConfig = useCallback((config: SpatialAudioConfig) => {
+		setEffectsConfig(config)
+		if (!sourceNodeRef.current) return
 		sourceNodeRef.current.disconnect()
-		buildAudioGraphSync({
-			sourceNode: sourceNodeRef.current,
-			audioCtx: audioCtx.current,
-			effectsConfig,
-		})
-	}, [effectsConfig])
+		buildAudioGraphSync({ sourceNode: sourceNodeRef.current, audioCtx: audioCtx.current, effectsConfig: config })
+		setIsEffectApplied(true)
+	}, [])
 
 	const handleOnResetConfig = () => {
-		if (!sourceNodeRef.current) return
 		setEffectsConfig(null)
+		setIsEffectApplied(false)
+		if (!sourceNodeRef.current) return
 		sourceNodeRef.current.disconnect()
 		sourceNodeRef.current.connect(audioCtx.current.destination)
 	}
@@ -100,7 +103,8 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 				effectsConfig,
 				setEffectsConfig,
 				contextState,
-				onApplyConfig: handleOnApplyConfig,
+				isEffectApplied,
+				applyEffectsConfig,
 				onResetConfig: handleOnResetConfig,
 			}}
 		>
