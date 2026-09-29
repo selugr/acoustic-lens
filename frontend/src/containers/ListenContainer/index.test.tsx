@@ -53,4 +53,22 @@ describe('ListenContainer', () => {
 		expect(screen.getByText('9.5 kHz')).toBeInTheDocument()
 		expect(screen.getByText('Raw profile (JSON)')).toBeInTheDocument()
 	})
+
+	it.each([
+		['an empty object', {}],
+		[
+			'wrong-typed fields',
+			{ spatial_config: 'x', acoustic_space: { space_type: 5, reverb_time_rt60: 'long' }, audio_processing: [] },
+		],
+		['null sections', { spatial_config: null, acoustic_space: null, audio_processing: null }],
+	])('does not throw for a partial profile (%s) and still shows the player', (_n, partial) => {
+		ctx.effectsConfig = partial
+		ctx.isEffectApplied = true
+
+		render(<ListenContainer />)
+
+		expect(screen.getByRole('heading', { name: 'Custom space' })).toBeInTheDocument()
+		expect(screen.getByText('transport')).toBeInTheDocument()
+		expect(screen.queryByRole('img')).not.toBeInTheDocument()
+	})
 })

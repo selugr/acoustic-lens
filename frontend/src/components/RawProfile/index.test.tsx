@@ -36,4 +36,18 @@ describe('RawProfile', () => {
 
 		expect(screen.getByRole('button', { name: 'Copy failed' })).toBeInTheDocument()
 	})
+
+	it('does not update state or leave a timer after unmount while the copy is pending', async () => {
+		let resolve: () => void = () => {}
+		setClipboard(vi.fn(() => new Promise<void>((r) => (resolve = r))))
+		const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+		const { unmount } = render(<RawProfile json="{}" />)
+		fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
+
+		unmount()
+		await act(async () => resolve())
+
+		expect(vi.getTimerCount()).toBe(0)
+		expect(errors).not.toHaveBeenCalled()
+	})
 })

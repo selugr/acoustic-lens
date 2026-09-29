@@ -3,24 +3,21 @@ import { RawProfile } from '../../components/RawProfile'
 import { SceneDiagram } from '../../components/SceneDiagram'
 import { SpaceSummary } from '../../components/SpaceSummary'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
+import { toListenView } from '../../helpers/listenView'
 import { AudioPlayerContainer } from '../AudioPlayerContainer'
 import styles from './styles.module.css'
 
 export function ListenContainer() {
 	const { effectsConfig, isEffectApplied } = useSpatialAudio()
+	const view = effectsConfig && isEffectApplied ? toListenView(effectsConfig) : null
 
 	return (
 		<div className={styles.listen}>
-			{effectsConfig && isEffectApplied ? (
+			{view && effectsConfig ? (
 				<>
-					<SceneDiagram
-						azimuthDeg={effectsConfig.spatial_config.azimuth_degrees}
-						elevationDeg={effectsConfig.spatial_config.elevation_degrees}
-						distanceM={effectsConfig.spatial_config.distance_meters}
-						pannerModel={effectsConfig.spatial_config.panner_model}
-					/>
-					<SpaceSummary space={effectsConfig.acoustic_space} distanceM={effectsConfig.spatial_config.distance_meters} />
-					<ParameterMeters processing={effectsConfig.audio_processing} />
+					{view.scene && <SceneDiagram {...view.scene} />}
+					<SpaceSummary {...view.space} />
+					<ParameterMeters rows={view.meters} />
 					<RawProfile json={JSON.stringify(effectsConfig, null, 2)} />
 				</>
 			) : (

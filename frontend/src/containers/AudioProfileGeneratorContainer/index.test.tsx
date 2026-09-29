@@ -144,6 +144,23 @@ describe('AudioProfileGeneratorContainer', () => {
 		expect(textbox()).toHaveFocus()
 	})
 
+	it('Retry after the source was cleared makes no call and focuses the field', async () => {
+		mockProfile.mockResolvedValue({ success: false, error: 'boom' })
+		const { rerender } = render(<AudioProfileGeneratorContainer />)
+		await userEvent.type(textbox(), VALID)
+		await userEvent.click(buildButton())
+		const retry = await screen.findByRole('button', { name: 'Retry' })
+
+		ctx.audioBlobUrl = null
+		rerender(<AudioProfileGeneratorContainer />)
+		await userEvent.click(retry)
+
+		expect(mockProfile).toHaveBeenCalledTimes(1)
+		expect(textbox()).toHaveFocus()
+		expect(screen.getByRole('alert')).toBeInTheDocument()
+		expect(buildButton()).toBeDisabled()
+	})
+
 	it('ignores a response that arrives after Reset to dry', async () => {
 		let resolve: (v: { success: true; data: never }) => void = () => {}
 		mockProfile.mockReturnValue(new Promise((r) => (resolve = r)))

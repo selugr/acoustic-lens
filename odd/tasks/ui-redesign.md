@@ -41,6 +41,7 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 - [x] T2F Source follow-ups from T2 review: stale revoke/overwrite race when a source changes during pending generation (WARNING); SourceSummaryContainer tests (Replace routing, hidden state, label fallback, duration formatting) (WARNING); AudioDropZoneContainer revoke + label test; DropZone drag-depth counter (no flicker), drag-over overrides rejected, accept audio by extension when MIME is empty. Route: delegated.
 - [x] T3 Space step: scene field with counter, example chips, loading state, auto-apply on generate, Reset to dry, error alert. Route: delegated.
 - [x] T4 Listen step: scene diagram, summary + meters, raw JSON with copy, custom transport with A/B bypass in audio engine, context-suspended hint. Route: delegated.
+- [x] T4F Listen follow-ups from T4 review: transport shows stale "Pause" after source swap (WARNING); Listen crashes on partial/malformed profile (WARNING); Retry-without-source test; RawProfile copy timer after unmount. Route: delegated.
 
 ## Acceptance criteria
 - Visual match with the canvas artboards at desktop (≥1024px) and mobile (390px).
@@ -63,6 +64,10 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 - T2F+T3 slice review: medium (slice_budget_reached, 726 lines), consent granted, reliability lens → approved and acknowledged (lineage review-ff049fca87a1c400). Reviewed boundary now 6c76958. Advisory: Retry silently no-ops when description invalid / source cleared → folded into T4.
 
 - T4 done: tests 146/146, types, biome exit 0, build ok. RED observed (15 tests + 10 missing-module suites, engine bypass, context, player, Retry). New helpers sceneGeometry/formatters; components SceneDiagram, SpaceSummary, ParameterMeters, RawProfile, Transport, AbCompare; ListenContainer; engine `setGraphBypass` + context `isBypassed/setBypassed/resumeAudio`; deleted DeleteEffectsEditorContainer and Pre. Retry follow-up fixed. Gaps: no visual comparison against artboards, no static waveform, mobile sticky untested (CSS only). ~1.5k lines (mostly new tests/components). Commit: `feat(frontend): redesign listen step with scene view and A/B transport`.
+
+- T4 review: medium (1,649 lines), consent granted, reliability lens → approved and acknowledged (lineage review-1dae11e7cca40c59). Reviewed boundary now 0c44aca. Findings → T4F.
+
+- T4F done: tests 161/161, types, biome exit 0, build ok. RED: stale-Pause source swap + emptied, partial-profile crash, RawProfile unmount timer. New `helpers/listenView` normalizer (`toListenView`); player derives from `el.paused` and listens to `emptied`. Retry-no-source test passed first run (T3 already handled it). Commit: `fix(frontend): harden listen step after review`.
 
 ## Next step
 Manual visual check in the browser against the canvas; then the user pushes and opens the PR.

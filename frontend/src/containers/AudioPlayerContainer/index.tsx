@@ -22,6 +22,12 @@ export const AudioPlayerContainer: React.FC = () => {
 		}
 		const onPlay = () => setPlaying(true)
 		const onPause = () => setPlaying(false)
+		// Loading a new source resets the element to paused without a 'pause' event
+		const onEmptied = () => {
+			setPlaying(false)
+			setCurrentTime(0)
+			setDuration(0)
+		}
 		const events: [string, () => void][] = [
 			['loadedmetadata', sync],
 			['durationchange', sync],
@@ -29,9 +35,11 @@ export const AudioPlayerContainer: React.FC = () => {
 			['play', onPlay],
 			['pause', onPause],
 			['ended', onPause],
+			['emptied', onEmptied],
 		]
 		for (const [name, handler] of events) el.addEventListener(name, handler)
 		sync()
+		setPlaying(!el.paused)
 		return () => {
 			for (const [name, handler] of events) el.removeEventListener(name, handler)
 		}
@@ -42,7 +50,7 @@ export const AudioPlayerContainer: React.FC = () => {
 	const handleToggle = async () => {
 		const el = audioRef.current
 		if (!el) return
-		if (playing) {
+		if (!el.paused) {
 			el.pause()
 			return
 		}

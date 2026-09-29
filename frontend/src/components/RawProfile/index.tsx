@@ -14,7 +14,15 @@ export function RawProfile({ json }: RawProfileProps) {
 	const [copy, setCopy] = useState<CopyState>('idle')
 	const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-	useEffect(() => () => clearTimeout(timer.current), [])
+	const mounted = useRef(true)
+
+	useEffect(() => {
+		mounted.current = true
+		return () => {
+			mounted.current = false
+			clearTimeout(timer.current)
+		}
+	}, [])
 
 	const handleCopy = async () => {
 		let next: CopyState = 'copied'
@@ -23,6 +31,7 @@ export function RawProfile({ json }: RawProfileProps) {
 		} catch {
 			next = 'failed'
 		}
+		if (!mounted.current) return
 		setCopy(next)
 		clearTimeout(timer.current)
 		timer.current = setTimeout(() => setCopy('idle'), RESET_MS)

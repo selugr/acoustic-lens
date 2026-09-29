@@ -16,6 +16,7 @@ const ctx = {
 }
 vi.mock('../../contexts/SpatialAudioCtx', () => ({ useSpatialAudio: () => ctx }))
 
+let paused = true
 const audio = () => audioRef.current as HTMLAudioElement
 
 describe('AudioPlayerContainer', () => {
@@ -28,8 +29,14 @@ describe('AudioPlayerContainer', () => {
 		})
 		ctx.setBypassed.mockReset()
 		ctx.resumeAudio.mockReset()
-		vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined)
-		vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
+		paused = true
+		vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockImplementation(() => paused)
+		vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(async () => {
+			paused = false
+		})
+		vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {
+			paused = true
+		})
 	})
 
 	it('renders nothing without a source', () => {
@@ -59,6 +66,40 @@ describe('AudioPlayerContainer', () => {
 		act(() => {
 			audio().dispatchEvent(new Event('pause'))
 		})
+		expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+	})
+
+	it('shows Play and plays on the first click after the source changes while playing', async () => {
+		const { rerender } = render(<AudioPlayerContainer />)
+		await userEvent.click(screen.getByRole('button', { name: 'Play' }))
+		act(() => {
+			audio().dispatchEvent(new Event('play'))
+		})
+		expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+
+		// Loading a new source resets the element to paused without emitting 'pause'
+		paused = true
+		ctx.audioBlobUrl = 'blob:y'
+		rerender(<AudioPlayerContainer />)
+
+		expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+		vi.mocked(HTMLMediaElement.prototype.play).mockClear()
+		await userEvent.click(screen.getByRole('button', { name: 'Play' }))
+		expect(HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1)
+	})
+
+	it('resets to Play on the element "emptied" event', async () => {
+		render(<AudioPlayerContainer />)
+		await userEvent.click(screen.getByRole('button', { name: 'Play' }))
+		act(() => {
+			audio().dispatchEvent(new Event('play'))
+		})
+
+		paused = true
+		act(() => {
+			audio().dispatchEvent(new Event('emptied'))
+		})
+
 		expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
 	})
 
