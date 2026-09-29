@@ -3,7 +3,7 @@ import { SourceSummary } from '../../components/SourceSummary'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import { AUDIO_INPUT_ID, VOICE_TEXT_ID } from '../sourceIds'
 
-const formatDuration = (seconds: number) => {
+export const formatDuration = (seconds: number) => {
 	const total = Math.round(seconds)
 	return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`
 }

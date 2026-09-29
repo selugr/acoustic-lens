@@ -8,7 +8,10 @@ interface SpatialAudioState {
 	audioBlobUrl: string | null
 	/** Human label of the loaded source (e.g. the uploaded file name); null for generated voice */
 	audioLabel: string | null
+	/** Replaces the source and revokes the previous blob URL */
 	setAudioBlobUrl: (url: string | null, label?: string | null) => void
+	/** Counter bumped on every source change; lets async work detect it was superseded */
+	getSourceVersion: () => number
 	audioRef: React.RefObject<HTMLAudioElement | null>
 	effectsConfig: SpatialAudioConfig | null
 	setEffectsConfig: (config: SpatialAudioConfig) => void
@@ -32,7 +35,13 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
 	const [audioBlobUrl, setAudioBlobUrlState] = useState<string | null>(null)
 	const [audioLabel, setAudioLabel] = useState<string | null>(null)
+	const currentUrlRef = useRef<string | null>(null)
+	const sourceVersionRef = useRef(0)
+	const getSourceVersion = useCallback(() => sourceVersionRef.current, [])
 	const setAudioBlobUrl = useCallback((url: string | null, label: string | null = null) => {
+		if (currentUrlRef.current && currentUrlRef.current !== url) URL.revokeObjectURL(currentUrlRef.current)
+		currentUrlRef.current = url
+		sourceVersionRef.current += 1
 		setAudioBlobUrlState(url)
 		setAudioLabel(url ? label : null)
 	}, [])
@@ -87,6 +96,7 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 				audioBlobUrl,
 				audioLabel,
 				setAudioBlobUrl,
+				getSourceVersion,
 				effectsConfig,
 				setEffectsConfig,
 				contextState,

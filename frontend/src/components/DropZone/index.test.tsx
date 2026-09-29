@@ -62,4 +62,73 @@ describe('DropZone', () => {
 		expect(onFile).toHaveBeenCalledWith(audio)
 		expect(screen.queryByText('That’s not an audio file')).not.toBeInTheDocument()
 	})
+
+	it('stays in drag-over while moving across children (enter/leave depth counter)', () => {
+		render(<DropZone inputId="audio-input" onFile={() => {}} />)
+		const zone = screen.getByTestId('dropzone')
+		const child = screen.getByLabelText('browse your files')
+
+		fireEvent.dragEnter(zone)
+		fireEvent.dragEnter(child)
+		fireEvent.dragLeave(zone)
+		expect(screen.getByText('Release to load')).toBeInTheDocument()
+
+		fireEvent.dragLeave(child)
+		expect(screen.queryByText('Release to load')).not.toBeInTheDocument()
+	})
+
+	it('resets the depth counter on drop so the next drag starts clean', () => {
+		render(<DropZone inputId="audio-input" onFile={() => {}} />)
+		const zone = screen.getByTestId('dropzone')
+
+		fireEvent.dragEnter(zone)
+		fireEvent.dragEnter(zone)
+		dropOn(zone, audio)
+		fireEvent.dragEnter(zone)
+		fireEvent.dragLeave(zone)
+
+		expect(screen.queryByText('Release to load')).not.toBeInTheDocument()
+	})
+
+	it('drag-over takes precedence over the rejected state', () => {
+		render(<DropZone inputId="audio-input" onFile={() => {}} />)
+		const zone = screen.getByTestId('dropzone')
+		dropOn(zone, pdf)
+		expect(screen.getByText('That’s not an audio file')).toBeInTheDocument()
+
+		fireEvent.dragEnter(zone)
+
+		expect(screen.getByText('Release to load')).toBeInTheDocument()
+		expect(screen.queryByText('That’s not an audio file')).not.toBeInTheDocument()
+	})
+
+	it.each([
+		'mp3',
+		'wav',
+		'm4a',
+		'aac',
+		'ogg',
+		'oga',
+		'flac',
+		'webm',
+		'opus',
+		'aiff',
+	])('accepts a .%s file with an empty MIME type', (ext) => {
+		const onFile = vi.fn()
+		render(<DropZone inputId="audio-input" onFile={onFile} />)
+		const file = new File(['a'], `take.${ext.toUpperCase()}`, { type: '' })
+
+		dropOn(screen.getByTestId('dropzone'), file)
+
+		expect(onFile).toHaveBeenCalledWith(file)
+	})
+
+	it('still rejects an empty-MIME file with an unknown extension', () => {
+		const onFile = vi.fn()
+		render(<DropZone inputId="audio-input" onFile={onFile} />)
+
+		dropOn(screen.getByTestId('dropzone'), new File(['x'], 'notes.txt', { type: '' }))
+
+		expect(onFile).not.toHaveBeenCalled()
+	})
 })

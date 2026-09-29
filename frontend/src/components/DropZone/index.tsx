@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Icon } from '../Icon'
 import styles from './styles.module.css'
 
@@ -9,10 +9,18 @@ interface DropZoneProps {
 	onFile: (file: File) => void
 }
 
-const isAudio = (file: File) => file.type.startsWith('audio/')
+const AUDIO_EXTENSIONS = new Set(['mp3', 'wav', 'm4a', 'aac', 'ogg', 'oga', 'flac', 'webm', 'opus', 'aiff'])
+
+/** Some platforms report an empty MIME type, so fall back to the extension. */
+const isAudio = (file: File) => {
+	if (file.type) return file.type.startsWith('audio/')
+	return AUDIO_EXTENSIONS.has(file.name.split('.').pop()?.toLowerCase() ?? '')
+}
 
 export function DropZone({ inputId, onFile }: DropZoneProps) {
 	const [dragOver, setDragOver] = useState(false)
+	// dragenter/dragleave also fire for child elements; count depth to avoid flicker
+	const dragDepth = useRef(0)
 	const [rejectedName, setRejectedName] = useState<string | null>(null)
 
 	const accept = (file: File) => {
@@ -24,13 +32,24 @@ export function DropZone({ inputId, onFile }: DropZoneProps) {
 		onFile(file)
 	}
 
+	const handleDragEnter = (e: React.DragEvent) => {
+		e.preventDefault()
+		dragDepth.current += 1
+		setDragOver(true)
+	}
+
 	const handleDragOver = (e: React.DragEvent) => {
 		e.preventDefault()
-		setDragOver(true)
+	}
+
+	const handleDragLeave = () => {
+		dragDepth.current = Math.max(0, dragDepth.current - 1)
+		if (dragDepth.current === 0) setDragOver(false)
 	}
 
 	const handleDrop = (e: React.DragEvent) => {
 		e.preventDefault()
+		dragDepth.current = 0
 		setDragOver(false)
 		const file = e.dataTransfer.files[0]
 		if (file) accept(file)
@@ -43,15 +62,15 @@ export function DropZone({ inputId, onFile }: DropZoneProps) {
 		e.target.value = ''
 	}
 
-	const state = rejectedName ? 'rejected' : dragOver ? 'dragOver' : 'idle'
+	const state = dragOver ? 'dragOver' : rejectedName ? 'rejected' : 'idle'
 
 	return (
 		<div
 			data-testid="dropzone"
 			className={`${styles.zone} ${styles[state]}`}
-			onDragEnter={handleDragOver}
+			onDragEnter={handleDragEnter}
 			onDragOver={handleDragOver}
-			onDragLeave={() => setDragOver(false)}
+			onDragLeave={handleDragLeave}
 			onDrop={handleDrop}
 		>
 			<input id={inputId} type="file" accept="audio/*" className={styles.input} onChange={handleChange} />

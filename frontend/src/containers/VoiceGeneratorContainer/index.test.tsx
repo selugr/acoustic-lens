@@ -6,7 +6,7 @@ import VoiceGeneratorContainer from './index'
 
 vi.mock('../../services/voices/textToSpeech', () => ({ default: vi.fn() }))
 vi.mock('../../contexts/SpatialAudioCtx', () => ({
-	useSpatialAudio: () => ({ audioBlobUrl: null, setAudioBlobUrl: vi.fn() }),
+	useSpatialAudio: () => ({ audioBlobUrl: null, setAudioBlobUrl: vi.fn(), getSourceVersion: () => 0 }),
 }))
 
 const mockTts = vi.mocked(textToSpeech)

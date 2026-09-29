@@ -16,7 +16,7 @@ export default function VoiceGeneratorContainer() {
 	const [loading, setLoading] = useState(false)
 	const [failed, setFailed] = useState(false)
 
-	const { setAudioBlobUrl, audioBlobUrl } = useSpatialAudio()
+	const { setAudioBlobUrl, getSourceVersion } = useSpatialAudio()
 
 	const length = text.trim().length
 	const isValid = length >= MIN_LENGTH && length <= MAX_LENGTH
@@ -27,6 +27,7 @@ export default function VoiceGeneratorContainer() {
 
 		setLoading(true)
 		setFailed(false)
+		const versionAtStart = getSourceVersion()
 
 		try {
 			// Full audio as a Blob (not a stream)
@@ -35,8 +36,8 @@ export default function VoiceGeneratorContainer() {
 				setFailed(true)
 				return
 			}
-			// Release the previous URL to free memory
-			if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl)
+			// A source loaded while we waited wins; drop this result
+			if (getSourceVersion() !== versionAtStart) return
 			setAudioBlobUrl(URL.createObjectURL(result.data))
 		} catch {
 			setFailed(true)

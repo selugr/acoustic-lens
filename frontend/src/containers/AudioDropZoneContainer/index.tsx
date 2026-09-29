@@ -4,10 +4,9 @@ import { AUDIO_INPUT_ID } from '../sourceIds'
 import styles from './styles.module.css'
 
 export const AudioDropZoneContainer: React.FC = () => {
-	const { setAudioBlobUrl, audioBlobUrl } = useSpatialAudio()
+	const { setAudioBlobUrl } = useSpatialAudio()
 
 	const handleFile = (file: File) => {
-		if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl)
 		setAudioBlobUrl(URL.createObjectURL(file), file.name)
 	}
 

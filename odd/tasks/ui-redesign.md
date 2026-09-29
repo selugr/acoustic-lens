@@ -38,6 +38,7 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 ## Tasks
 - [x] T1 Foundation: tokens, fonts, title/favicon, base components (Button loading/disabled, Field with counter/error, Tabs a11y, StepCard, Alert, Chip, StatusPill), header + layout grid. Route: delegated (writer trigger, 2+ non-trivial files).
 - [x] T2 Source step: generate form (disabled while loading, loading reset on error, counter), upload drop zone (drag-over, non-audio rejection, loaded summary with replace). Route: delegated.
+- [x] T2F Source follow-ups from T2 review: stale revoke/overwrite race when a source changes during pending generation (WARNING); SourceSummaryContainer tests (Replace routing, hidden state, label fallback, duration formatting) (WARNING); AudioDropZoneContainer revoke + label test; DropZone drag-depth counter (no flicker), drag-over overrides rejected, accept audio by extension when MIME is empty. Route: delegated.
 - [ ] T3 Space step: scene field with counter, example chips, loading state, auto-apply on generate, Reset to dry, error alert. Route: delegated.
 - [ ] T4 Listen step: scene diagram, summary + meters, raw JSON with copy, custom transport with A/B bypass in audio engine, context-suspended hint. Route: delegated.
 
@@ -53,5 +54,9 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 
 - T2 done (delegated writer): tests 63/63 (parent re-ran), check-types clean, biome exit 0, build ok. RED observed (DropZone/SourceSummary missing, Tabs duplicate ids, VoiceGenerator 5/5 incl. unhandled rejection on throw). New DropZone, SourceSummary, SourceSummaryContainer, sourceIds; Tabs ids via useId (`idPrefix`); context `setAudioBlobUrl(url, label?)` stores `audioLabel`; failed generate keeps previous audio. Gaps: no test for duration probing or layout done state (layout test moves to T3). ~620 authored lines. Commit: `feat(frontend): redesign source step`.
 
+- T2 review: medium (slice_budget_reached), consent granted, reliability lens → approved and acknowledged (lineage review-d2e0ae0264d65bca). Reviewed boundary now 5691bbd. Advisory findings → new task T2F.
+
+- T2F done: tests 90/90 (parent re-ran), types, biome, build ok. RED: race test (blob:generated overwrote blob:upload), DropZone flicker/dragover/empty-MIME, formatDuration missing. Context `setAudioBlobUrl` now revokes the previous URL via ref and bumps a source version (`getSourceVersion`); superseded generations are dropped. Commit: `fix(frontend): harden source step after review`.
+
 ## Next step
-T3 Space step.
+T3 Space step (same writer).
