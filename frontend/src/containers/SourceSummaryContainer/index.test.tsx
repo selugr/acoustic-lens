@@ -1,8 +1,9 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { formatDuration } from '../../helpers/formatters'
 import { AUDIO_INPUT_ID, VOICE_TEXT_ID } from '../sourceIds'
-import { formatDuration, SourceSummaryContainer } from './index'
+import { SourceSummaryContainer } from './index'
 
 let ctx: { audioBlobUrl: string | null; audioLabel: string | null } = { audioBlobUrl: null, audioLabel: null }
 vi.mock('../../contexts/SpatialAudioCtx', () => ({ useSpatialAudio: () => ctx }))

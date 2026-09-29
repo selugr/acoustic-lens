@@ -5,7 +5,6 @@ import { Button } from '../../components/Button'
 import { Chip } from '../../components/Chip'
 import { Field } from '../../components/Field'
 import { Icon } from '../../components/Icon'
-import Pre from '../../components/Pre'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import textToAudioProfile from '../../services/audioConfig/textToAudioProfile'
 
@@ -21,7 +20,7 @@ export default function AudioProfileGeneratorContainer() {
 	const [failed, setFailed] = useState(false)
 	// Bumped on every new request and on reset; a response only counts if its token is still current
 	const requestToken = useRef(0)
-	const { effectsConfig, isEffectApplied, applyEffectsConfig, onResetConfig, audioBlobUrl } = useSpatialAudio()
+	const { isEffectApplied, applyEffectsConfig, onResetConfig, audioBlobUrl } = useSpatialAudio()
 
 	const length = text.trim().length
 	const isValid = length >= MIN_LENGTH && length <= MAX_LENGTH
@@ -62,12 +61,19 @@ export default function AudioProfileGeneratorContainer() {
 		void build()
 	}
 
+	const handleRetry = () => {
+		setTouched(true)
+		if (!isValid || !audioBlobUrl) {
+			document.getElementById(SCENE_FIELD_ID)?.focus()
+			return
+		}
+		void build()
+	}
+
 	const pickExample = (example: string) => {
 		setText(example)
 		document.getElementById(SCENE_FIELD_ID)?.focus()
 	}
-
-	const parsedEffectsConfig = effectsConfig ? JSON.stringify(effectsConfig, null, 2) : ''
 
 	return (
 		<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 18 }}>
@@ -91,11 +97,7 @@ export default function AudioProfileGeneratorContainer() {
 				))}
 			</div>
 			{failed && (
-				<Alert
-					variant="danger"
-					title="Couldn’t build the space"
-					action={{ label: 'Retry', onClick: () => void build() }}
-				>
+				<Alert variant="danger" title="Couldn’t build the space" action={{ label: 'Retry', onClick: handleRetry }}>
 					The profile service didn’t respond. Your description is kept — try again.
 				</Alert>
 			)}
@@ -113,13 +115,6 @@ export default function AudioProfileGeneratorContainer() {
 					Build space
 				</Button>
 			</Actions>
-
-			{parsedEffectsConfig && (
-				<details>
-					<summary>JSON Config</summary>
-					<Pre>{parsedEffectsConfig}</Pre>
-				</details>
-			)}
 		</form>
 	)
 }

@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react'
 import { SourceSummary } from '../../components/SourceSummary'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
+import { formatDuration } from '../../helpers/formatters'
 import { AUDIO_INPUT_ID, VOICE_TEXT_ID } from '../sourceIds'
-
-export const formatDuration = (seconds: number) => {
-	const total = Math.round(seconds)
-	return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`
-}
 
 /** Reads the duration from the blob's metadata; null while unknown or unavailable. */
 function useAudioDuration(url: string | null) {

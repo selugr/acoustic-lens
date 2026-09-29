@@ -40,7 +40,7 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 - [x] T2 Source step: generate form (disabled while loading, loading reset on error, counter), upload drop zone (drag-over, non-audio rejection, loaded summary with replace). Route: delegated.
 - [x] T2F Source follow-ups from T2 review: stale revoke/overwrite race when a source changes during pending generation (WARNING); SourceSummaryContainer tests (Replace routing, hidden state, label fallback, duration formatting) (WARNING); AudioDropZoneContainer revoke + label test; DropZone drag-depth counter (no flicker), drag-over overrides rejected, accept audio by extension when MIME is empty. Route: delegated.
 - [x] T3 Space step: scene field with counter, example chips, loading state, auto-apply on generate, Reset to dry, error alert. Route: delegated.
-- [ ] T4 Listen step: scene diagram, summary + meters, raw JSON with copy, custom transport with A/B bypass in audio engine, context-suspended hint. Route: delegated.
+- [x] T4 Listen step: scene diagram, summary + meters, raw JSON with copy, custom transport with A/B bypass in audio engine, context-suspended hint. Route: delegated.
 
 ## Acceptance criteria
 - Visual match with the canvas artboards at desktop (≥1024px) and mobile (390px).
@@ -60,5 +60,9 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 
 - T3 done: tests 101/101, types, biome, build ok. RED observed (11 new tests). Context adds `isEffectApplied` + `applyEffectsConfig`; `onApplyConfig` removed; request-token guard for stale/overlapping responses; Space step done only when applied. Raw JSON details still in Space container (T4 moves it). Dead `DeleteEffectsEditorContainer` left for T4 cleanup. Commit: `feat(frontend): redesign space step with auto-apply`.
 
+- T2F+T3 slice review: medium (slice_budget_reached, 726 lines), consent granted, reliability lens → approved and acknowledged (lineage review-ff049fca87a1c400). Reviewed boundary now 6c76958. Advisory: Retry silently no-ops when description invalid / source cleared → folded into T4.
+
+- T4 done: tests 146/146, types, biome exit 0, build ok. RED observed (15 tests + 10 missing-module suites, engine bypass, context, player, Retry). New helpers sceneGeometry/formatters; components SceneDiagram, SpaceSummary, ParameterMeters, RawProfile, Transport, AbCompare; ListenContainer; engine `setGraphBypass` + context `isBypassed/setBypassed/resumeAudio`; deleted DeleteEffectsEditorContainer and Pre. Retry follow-up fixed. Gaps: no visual comparison against artboards, no static waveform, mobile sticky untested (CSS only). ~1.5k lines (mostly new tests/components). Commit: `feat(frontend): redesign listen step with scene view and A/B transport`.
+
 ## Next step
-T4 Listen step.
+Manual visual check in the browser against the canvas; then the user pushes and opens the PR.

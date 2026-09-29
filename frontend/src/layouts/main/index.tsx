@@ -1,10 +1,11 @@
 import { useId, useState } from 'react'
 import { Icon } from '../../components/Icon'
+import { StatusPill } from '../../components/StatusPill'
 import { StepCard } from '../../components/StepCard'
 import { TabPanel, Tabs } from '../../components/Tabs'
 import { AudioDropZoneContainer } from '../../containers/AudioDropZoneContainer'
-import { AudioPlayerContainer } from '../../containers/AudioPlayerContainer'
 import AudioProfileGeneratorContainer from '../../containers/AudioProfileGeneratorContainer'
+import { ListenContainer } from '../../containers/ListenContainer'
 import { SourceSummaryContainer } from '../../containers/SourceSummaryContainer'
 import VoiceGeneratorContainer from '../../containers/VoiceGeneratorContainer'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
@@ -59,8 +60,9 @@ export default function MainLayout() {
 				title="Listen"
 				description="Use headphones for accurate direction. Flip A/B to hear the difference."
 				active={hasSource}
+				aside={isEffectApplied ? <StatusPill tone="ready">Profile applied</StatusPill> : undefined}
 			>
-				<AudioPlayerContainer />
+				<ListenContainer />
 			</StepCard>
 		</div>
 	)

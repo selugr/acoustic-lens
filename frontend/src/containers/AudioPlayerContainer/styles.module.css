@@ -1,8 +1,21 @@
-.audio {
-  width: 100%;
+.player {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.empty {
-  font-size: var(--fs-13);
-  color: var(--text-3);
+.compare {
+  display: flex;
+}
+
+/* Mobile: transport pinned to the bottom of the viewport */
+@media (max-width: 1023px) {
+  .player {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    padding: var(--space-3) 0;
+    background-color: var(--bg-panel);
+    border-top: 1px solid var(--border);
+  }
 }

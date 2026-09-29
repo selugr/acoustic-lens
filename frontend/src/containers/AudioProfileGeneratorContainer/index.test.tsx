@@ -128,6 +128,22 @@ describe('AudioProfileGeneratorContainer', () => {
 		expect(ctx.applyEffectsConfig).toHaveBeenCalledWith(CONFIG)
 	})
 
+	it('Retry with an invalid description shows the field error and focuses it instead of doing nothing', async () => {
+		mockProfile.mockResolvedValue({ success: false, error: 'boom' })
+		render(<AudioProfileGeneratorContainer />)
+		await userEvent.type(textbox(), VALID)
+		await userEvent.click(buildButton())
+		const retry = await screen.findByRole('button', { name: 'Retry' })
+
+		await userEvent.clear(textbox())
+		await userEvent.type(textbox(), 'ab')
+		await userEvent.click(retry)
+
+		expect(mockProfile).toHaveBeenCalledTimes(1)
+		expect(screen.getByText('Enter 5–100 characters.')).toBeInTheDocument()
+		expect(textbox()).toHaveFocus()
+	})
+
 	it('ignores a response that arrives after Reset to dry', async () => {
 		let resolve: (v: { success: true; data: never }) => void = () => {}
 		mockProfile.mockReturnValue(new Promise((r) => (resolve = r)))

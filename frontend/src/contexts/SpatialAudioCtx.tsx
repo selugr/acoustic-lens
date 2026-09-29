@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { SpatialAudioConfig } from '../../../common/types'
-import { buildAudioGraphSync } from '../helpers/audioEngine'
+import { buildAudioGraphSync, setGraphBypass } from '../helpers/audioEngine'
 
-// import type { AudioGraph } from '../types'
+import type { AudioGraph } from '../types'
 
 interface SpatialAudioState {
 	audioBlobUrl: string | null
@@ -19,7 +19,12 @@ interface SpatialAudioState {
 	isEffectApplied: boolean
 	/** Stores the config and applies it to the audio graph right away */
 	applyEffectsConfig: (config: SpatialAudioConfig) => void
+	/** A/B compare: true routes the source dry, bypassing the applied profile */
+	isBypassed: boolean
+	setBypassed: (bypassed: boolean) => void
 	contextState: AudioContextState | null
+	/** Resumes the AudioContext when the browser left it suspended */
+	resumeAudio: () => Promise<void>
 	onResetConfig: () => void
 }
 
@@ -50,6 +55,8 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 	}, [])
 	const [effectsConfig, setEffectsConfig] = useState<SpatialAudioConfig | null>(null)
 	const [isEffectApplied, setIsEffectApplied] = useState(false)
+	const graphRef = useRef<AudioGraph | null>(null)
+	const [isBypassed, setIsBypassed] = useState(false)
 	const [contextState, setContextState] = useState<AudioContextState | null>(audioCtx.current.state)
 
 	useEffect(() => {
@@ -73,23 +80,33 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 		setEffectsConfig(config)
 		if (!sourceNodeRef.current) return
 		sourceNodeRef.current.disconnect()
-		buildAudioGraphSync({ sourceNode: sourceNodeRef.current, audioCtx: audioCtx.current, effectsConfig: config })
+		graphRef.current = buildAudioGraphSync({
+			sourceNode: sourceNodeRef.current,
+			audioCtx: audioCtx.current,
+			effectsConfig: config,
+		})
+		setIsBypassed(false)
 		setIsEffectApplied(true)
+	}, [])
+
+	const setBypassed = useCallback((bypassed: boolean) => {
+		if (!graphRef.current) return
+		setGraphBypass(graphRef.current, bypassed)
+		setIsBypassed(bypassed)
+	}, [])
+
+	const resumeAudio = useCallback(async () => {
+		if (audioCtx.current.state === 'suspended') await audioCtx.current.resume()
 	}, [])
 
 	const handleOnResetConfig = () => {
 		setEffectsConfig(null)
 		setIsEffectApplied(false)
+		setIsBypassed(false)
+		graphRef.current = null
 		if (!sourceNodeRef.current) return
 		sourceNodeRef.current.disconnect()
 		sourceNodeRef.current.connect(audioCtx.current.destination)
-	}
-
-	const handleOnBypass = () => {
-		// if (!sourceNodeRef.current) return
-		// setEffectsConfig(null)
-		// sourceNodeRef.current.disconnect()
-		// sourceNodeRef.current.connect(audioCtx.current.destination)
 	}
 
 	return (
@@ -102,7 +119,10 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 				getSourceVersion,
 				effectsConfig,
 				setEffectsConfig,
+				isBypassed,
+				setBypassed,
 				contextState,
+				resumeAudio,
 				isEffectApplied,
 				applyEffectsConfig,
 				onResetConfig: handleOnResetConfig,

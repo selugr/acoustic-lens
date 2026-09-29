@@ -1,6 +1,6 @@
 import type { SpatialAudioConfig } from '@common/types'
 import { describe, expect, it, vi } from 'vitest'
-import { buildAudioGraphSync } from './index'
+import { buildAudioGraphSync, setGraphBypass } from './index'
 
 class MockAudioParam {
 	value = 0
@@ -264,5 +264,37 @@ describe('buildAudioGraphSync', () => {
 		expect(panner.connect).toHaveBeenCalledWith(compressor)
 		expect(compressor.connect).toHaveBeenCalledWith(masterGain)
 		expect(masterGain.connect).toHaveBeenCalledWith(audioCtx.destination)
+	})
+})
+
+describe('setGraphBypass', () => {
+	const make = () => {
+		const destination = {}
+		const sourceNode = new MockAudioNode()
+		const lowCut = {}
+		return { sourceNode, lowCut, destination, graph: { sourceNode, lowCut, context: { destination } } as never }
+	}
+
+	it('routes the source straight to the destination when bypassed', () => {
+		const { sourceNode, lowCut, destination, graph } = make()
+		setGraphBypass(graph, true)
+		expect(sourceNode.disconnect).toHaveBeenCalledWith(lowCut)
+		expect(sourceNode.connect).toHaveBeenCalledWith(destination)
+	})
+
+	it('routes back through the effect chain when not bypassed', () => {
+		const { sourceNode, lowCut, destination, graph } = make()
+		setGraphBypass(graph, false)
+		expect(sourceNode.disconnect).toHaveBeenCalledWith(destination)
+		expect(sourceNode.connect).toHaveBeenCalledWith(lowCut)
+	})
+
+	it('tolerates a route that is already disconnected', () => {
+		const { sourceNode, graph } = make()
+		sourceNode.disconnect.mockImplementation(() => {
+			throw new Error('InvalidAccessError')
+		})
+		expect(() => setGraphBypass(graph, true)).not.toThrow()
+		expect(sourceNode.connect).toHaveBeenCalled()
 	})
 })
