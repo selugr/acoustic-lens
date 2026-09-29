@@ -1,7 +1,6 @@
 // import { useEffect, useState } from 'react'
 import { useRef } from 'react'
 import { Icon } from '../../components/Icon'
-import { Label } from '../../components/Label'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import styles from './styles.module.css'
 
@@ -41,7 +40,7 @@ export const AudioDropZoneContainer: React.FC = () => {
 			}}
 			className={styles.dropArea}
 			style={{
-				backgroundColor: audioBlobUrl ? 'var(--accent-active)' : 'var(--accent-muted)',
+				backgroundColor: audioBlobUrl ? 'var(--accent-soft)' : 'var(--bg-sunken)',
 			}}
 		>
 			<input
@@ -52,7 +51,7 @@ export const AudioDropZoneContainer: React.FC = () => {
 				accept="audio/*"
 				onChange={handleOnChange}
 			/>
-			<Label htmlFor="audio-input" className={styles.dropAreaLabel}>
+			<label htmlFor="audio-input" className={styles.dropAreaLabel}>
 				{isAudioDrop ? (
 					<>
 						<Icon name="check" />
@@ -61,7 +60,7 @@ export const AudioDropZoneContainer: React.FC = () => {
 				) : (
 					'Drag an audio file or click to browse'
 				)}
-			</Label>
+			</label>
 		</button>
 	)
 }

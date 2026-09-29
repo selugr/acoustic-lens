@@ -1,64 +1,53 @@
 .tabGroup {
-  display: flex;
-  gap: 0;
-  margin-bottom: var(--space-5);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background-color: var(--bg-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-10);
 }
 
 .tab {
-  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  font-family: inherit;
-  font-size: var(--font-xs);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  font-size: var(--fs-13);
   font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-primary);
+  color: var(--text-3);
   background-color: transparent;
-  border: none;
+  border: 0;
+  border-radius: 7px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  outline: none;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .tab:hover {
-  color: var(--text-secondary);
-  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-2);
 }
 
-.tabActive {
-  color: var(--text-inverse);
-  background-color: var(--accent);
-}
-
+.tabActive,
 .tabActive:hover {
-  background-color: var(--accent-hover);
+  color: var(--text);
+  background-color: var(--bg-selected);
+}
+
+.tab:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 .tabIcon {
   display: inline-flex;
-  width: 12px;
-  height: 12px;
-}
-
-.tabText {
-  line-height: 1;
-}
-
-.tabPanels {
-  position: relative;
 }
 
 .tabPanel {
   width: 100%;
 }
 
-/* Activity hidden mode keeps DOM but visually hides */
-.tabPanel:not(.tabPanelActive) {
+/* Activity hidden mode keeps DOM state; make sure it is not painted */
+.tabPanel[hidden] {
   display: none;
 }

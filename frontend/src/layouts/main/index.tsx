@@ -1,42 +1,64 @@
 import { useState } from 'react'
-import { Card } from '../../components/Card'
 import { Icon } from '../../components/Icon'
-import { Tab, TabGroup, TabPanel, TabPanels } from '../../components/Tabs'
+import { StepCard } from '../../components/StepCard'
+import { TabPanel, Tabs } from '../../components/Tabs'
 import { AudioDropZoneContainer } from '../../containers/AudioDropZoneContainer'
 import { AudioPlayerContainer } from '../../containers/AudioPlayerContainer'
 import AudioProfileGeneratorContainer from '../../containers/AudioProfileGeneratorContainer'
 import VoiceGeneratorContainer from '../../containers/VoiceGeneratorContainer'
+import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import styles from './styles.module.css'
+
+const SOURCE_TABS = [
+	{ id: 'generate', label: 'Generate voice', icon: <Icon name="mic" /> },
+	{ id: 'upload', label: 'Upload audio', icon: <Icon name="upload" /> },
+]
 
 export default function MainLayout() {
 	const [activeTab, setActiveTab] = useState('generate')
+	const { audioBlobUrl, effectsConfig } = useSpatialAudio()
+
+	const hasSource = !!audioBlobUrl
+	const hasSpace = !!effectsConfig
 
 	return (
 		<div className={styles.layout}>
-			<Card>
-				<TabGroup>
-					<Tab isActive={activeTab === 'generate'} onClick={() => setActiveTab('generate')} icon={<Icon name="mic" />}>
-						Generate
-					</Tab>
-					<Tab isActive={activeTab === 'upload'} onClick={() => setActiveTab('upload')} icon={<Icon name="upload" />}>
-						Upload
-					</Tab>
-				</TabGroup>
-
-				<TabPanels>
-					<TabPanel isActive={activeTab === 'generate'}>
+			<div className={styles.column}>
+				<StepCard
+					step={1}
+					title="Source"
+					description="Synthesize a voice line, or bring your own recording."
+					done={hasSource}
+					active={!hasSource}
+				>
+					<Tabs label="Source type" items={SOURCE_TABS} value={activeTab} onChange={setActiveTab} />
+					<TabPanel id="generate" isActive={activeTab === 'generate'}>
 						<VoiceGeneratorContainer />
 					</TabPanel>
-
-					<TabPanel isActive={activeTab === 'upload'}>
+					<TabPanel id="upload" isActive={activeTab === 'upload'}>
 						<AudioDropZoneContainer />
 					</TabPanel>
-				</TabPanels>
-			</Card>
+				</StepCard>
 
-			<AudioProfileGeneratorContainer />
+				<StepCard
+					step={2}
+					title="Acoustic space"
+					description="Describe the room and where the voice is. We turn it into a spatial profile."
+					done={hasSpace}
+					active={hasSource && !hasSpace}
+				>
+					<AudioProfileGeneratorContainer />
+				</StepCard>
+			</div>
 
-			<AudioPlayerContainer />
+			<StepCard
+				step={3}
+				title="Listen"
+				description="Use headphones for accurate direction. Flip A/B to hear the difference."
+				active={hasSource}
+			>
+				<AudioPlayerContainer />
+			</StepCard>
 		</div>
 	)
 }

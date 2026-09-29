@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Actions } from '../../components/Actions'
+import { Alert } from '../../components/Alert'
 import { Button } from '../../components/Button'
+import { Field } from '../../components/Field'
 import { Icon } from '../../components/Icon'
-import { Label } from '../../components/Label'
-import { Textarea } from '../../components/TextArea'
 import { useSpatialAudio } from '../../contexts/SpatialAudioCtx'
 import textToSpeech from '../../services/voices/textToSpeech'
 
 export default function VoiceGeneratorContainer() {
 	const [text, setText] = useState('')
-	// const [audioUrl, setAudioUrl] = useState<string | null>(null)
 
 	const { setAudioBlobUrl, audioBlobUrl } = useSpatialAudio()
 
@@ -28,7 +26,7 @@ export default function VoiceGeneratorContainer() {
 		e.preventDefault()
 		if (!text.trim()) return
 
-		// Limpiar URL anterior para liberar memoria
+		// Release the previous URL to free memory
 		if (audioBlobUrl) {
 			URL.revokeObjectURL(audioBlobUrl)
 			setAudioBlobUrl(null)
@@ -37,36 +35,37 @@ export default function VoiceGeneratorContainer() {
 		setLoading(true)
 		setError(null)
 
-		// Obtener el audio completo como Blob (no es stream)
-		const result = await textToSpeech(text)
+		try {
+			// Full audio as a Blob (not a stream)
+			const result = await textToSpeech(text)
 
-		if (!result.success) {
-			return setError(result.error)
+			if (!result.success) {
+				return setError(result.error)
+			}
+			setAudioBlobUrl(URL.createObjectURL(result.data))
+		} finally {
+			setLoading(false)
 		}
-		const newAudioUrl = URL.createObjectURL(result.data)
-		setAudioBlobUrl(newAudioUrl)
-		setLoading(false)
 	}
 
 	return (
-		<>
-			<h2>Voice generator</h2>
-			<form onSubmit={handleOnSubmit}>
-				<Label htmlFor="voice-prompt">Voice Prompt</Label>
-				<Textarea
-					id="voice-prompt"
-					onChange={(e) => setText(e.target.value)}
-					placeholder="Texto to voice"
-					minLength={5}
-					maxLength={50}
-				/>
-				{error && <span>{error}</span>}
-				<Actions align="end">
-					<Button type="submit" variant="ghost" icon={<Icon name="mic" />}>
-						{loading ? 'Generating...' : 'Generate Voice'}
-					</Button>
-				</Actions>
-			</form>
-		</>
+		<form onSubmit={handleOnSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 18 }}>
+			<Field
+				label="What should the voice say?"
+				value={text}
+				onChange={setText}
+				placeholder="e.g. Meet me by the north door after the service."
+				minLength={5}
+				maxLength={50}
+			/>
+			{error && (
+				<Alert variant="danger" title="Couldn’t generate the voice">
+					{error}
+				</Alert>
+			)}
+			<Button type="submit" fullWidth loading={loading} loadingLabel="Generating…" icon={<Icon name="mic" />}>
+				Generate voice
+			</Button>
+		</form>
 	)
 }

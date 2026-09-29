@@ -3,70 +3,103 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  font-family: inherit;
-  font-size: var(--font-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
+  height: 44px;
+  padding: 0 var(--space-5);
+  font-size: var(--fs-14);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-10);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
   outline: none;
 }
 
 .button:focus-visible {
-  box-shadow: var(--shadow-focus);
+  box-shadow: var(--focus-ring);
+}
+
+.sm {
+  height: 36px;
+  padding: 0 var(--space-3);
+  font-size: var(--fs-13);
+  border-radius: var(--radius-8);
+}
+
+.fullWidth {
+  width: 100%;
 }
 
 .icon {
   display: inline-flex;
-  width: 12px;
-  height: 12px;
 }
 
 .text {
   line-height: 1;
 }
 
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  opacity: 0.8;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Variants */
 .primary {
-  color: var(--text-inverse);
+  color: var(--accent-ink);
   background-color: var(--accent);
-  border-color: var(--accent);
 }
 
-.primary:hover {
+.primary:hover:not(:disabled) {
   background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
 }
 
-.primary:active {
-  background-color: var(--accent-active);
-  border-color: var(--accent-active);
+.primary:active:not(:disabled),
+.primary[aria-busy="true"] {
+  background-color: var(--accent-pressed);
 }
 
 .secondary {
-  color: var(--text-secondary);
-  background-color: var(--bg-elevated);
-  border-color: var(--border-default);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  background-color: var(--bg-raised);
+  border-color: var(--border-strong);
 }
 
-.secondary:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-sunken);
-  border-color: var(--border-hover);
+.secondary:hover:not(:disabled) {
+  background-color: var(--border);
+  border-color: #4a4f58;
 }
 
 .ghost {
-  color: var(--text-tertiary);
+  font-weight: var(--weight-medium);
+  color: var(--text-2);
   background-color: transparent;
-  border-color: var(--border-default);
 }
 
-.ghost:hover {
-  color: var(--text-secondary);
-  background-color: rgba(255, 255, 255, 0.03);
-  border-color: var(--border-hover);
+.ghost:hover:not(:disabled) {
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Disabled (loading buttons keep their variant look) */
+.button:disabled:not([aria-busy="true"]) {
+  color: var(--text-disabled);
+  background-color: var(--border-subtle);
+  border-color: transparent;
+  cursor: not-allowed;
+}
+
+.button[aria-busy="true"] {
+  cursor: progress;
 }
