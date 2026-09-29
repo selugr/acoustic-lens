@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { TabPanel, Tabs } from './index'
 
@@ -12,12 +12,13 @@ const items = [
 
 function TabsExample() {
 	const [value, setValue] = useState('generate')
+	const idPrefix = useId()
 
 	return (
 		<>
-			<Tabs label="Source type" items={items} value={value} onChange={setValue} />
+			<Tabs label="Source type" items={items} value={value} onChange={setValue} idPrefix={idPrefix} />
 			{items.map((item) => (
-				<TabPanel key={item.id} id={item.id} isActive={value === item.id}>
+				<TabPanel key={item.id} id={item.id} idPrefix={idPrefix} isActive={value === item.id}>
 					{item.label} panel
 				</TabPanel>
 			))}
@@ -82,5 +83,27 @@ describe('Tabs', () => {
 		await userEvent.keyboard('{Home}')
 		expect(screen.getByRole('tab', { name: 'Generate voice' })).toHaveFocus()
 		expect(screen.getByRole('tab', { name: 'Generate voice' })).toHaveAttribute('aria-selected', 'true')
+	})
+})
+
+describe('Tabs ids', () => {
+	it('keeps ids unique across two groups that share item ids, and wires aria to the right elements', () => {
+		render(
+			<>
+				<TabsExample />
+				<TabsExample />
+			</>,
+		)
+
+		const tabs = screen.getAllByRole('tab', { name: 'Generate voice' })
+		const panels = screen.getAllByRole('tabpanel')
+		expect(tabs).toHaveLength(2)
+		expect(tabs[0].id).not.toBe(tabs[1].id)
+		expect(panels[0].id).not.toBe(panels[1].id)
+
+		tabs.forEach((tab, i) => {
+			expect(document.getElementById(tab.getAttribute('aria-controls') ?? '')).toBe(panels[i])
+			expect(document.getElementById(panels[i].getAttribute('aria-labelledby') ?? '')).toBe(tab)
+		})
 	})
 })

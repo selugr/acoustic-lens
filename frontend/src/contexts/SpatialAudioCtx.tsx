@@ -6,7 +6,9 @@ import { buildAudioGraphSync } from '../helpers/audioEngine'
 
 interface SpatialAudioState {
 	audioBlobUrl: string | null
-	setAudioBlobUrl: (url: string | null) => void
+	/** Human label of the loaded source (e.g. the uploaded file name); null for generated voice */
+	audioLabel: string | null
+	setAudioBlobUrl: (url: string | null, label?: string | null) => void
 	audioRef: React.RefObject<HTMLAudioElement | null>
 	effectsConfig: SpatialAudioConfig | null
 	setEffectsConfig: (config: SpatialAudioConfig) => void
@@ -28,7 +30,12 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 	const audioRef = useRef<HTMLAudioElement | null>(null)
 	const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null)
 
-	const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null)
+	const [audioBlobUrl, setAudioBlobUrlState] = useState<string | null>(null)
+	const [audioLabel, setAudioLabel] = useState<string | null>(null)
+	const setAudioBlobUrl = useCallback((url: string | null, label: string | null = null) => {
+		setAudioBlobUrlState(url)
+		setAudioLabel(url ? label : null)
+	}, [])
 	const [effectsConfig, setEffectsConfig] = useState<SpatialAudioConfig | null>(null)
 	const [contextState, setContextState] = useState<AudioContextState | null>(audioCtx.current.state)
 
@@ -78,6 +85,7 @@ export const SpatialAudioProvider: React.FC<{ children: React.ReactNode }> = ({ 
 			value={{
 				audioRef,
 				audioBlobUrl,
+				audioLabel,
 				setAudioBlobUrl,
 				effectsConfig,
 				setEffectsConfig,

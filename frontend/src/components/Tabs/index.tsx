@@ -1,8 +1,8 @@
-import { Activity, useRef } from 'react'
+import { Activity, useId, useRef } from 'react'
 import styles from './styles.module.css'
 
-const tabId = (id: string) => `tab-${id}`
-const panelId = (id: string) => `tabpanel-${id}`
+const tabId = (prefix: string, id: string) => `${prefix}-tab-${id}`
+const panelId = (prefix: string, id: string) => `${prefix}-tabpanel-${id}`
 
 export interface TabItem {
 	id: string
@@ -18,10 +18,14 @@ interface TabsProps {
 	/** Id of the selected tab */
 	value: string
 	onChange: (id: string) => void
+	/** Per-instance id prefix (e.g. from `useId()`); pass the same one to each TabPanel. Defaults to an internal one. */
+	idPrefix?: string
 	className?: string
 }
 
-export function Tabs({ label, items, value, onChange, className = '' }: TabsProps) {
+export function Tabs({ label, items, value, onChange, idPrefix, className = '' }: TabsProps) {
+	const autoPrefix = useId()
+	const prefix = idPrefix ?? autoPrefix
 	const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
 	const select = (id: string) => {
@@ -60,9 +64,9 @@ export function Tabs({ label, items, value, onChange, className = '' }: TabsProp
 						}}
 						type="button"
 						role="tab"
-						id={tabId(item.id)}
+						id={tabId(prefix, item.id)}
 						aria-selected={isActive}
-						aria-controls={panelId(item.id)}
+						aria-controls={panelId(prefix, item.id)}
 						tabIndex={isActive ? 0 : -1}
 						className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
 						onClick={() => select(item.id)}
@@ -80,14 +84,16 @@ export function Tabs({ label, items, value, onChange, className = '' }: TabsProp
 interface TabPanelProps {
 	/** Id of the tab this panel belongs to */
 	id: string
+	/** Same `idPrefix` given to the owning Tabs */
+	idPrefix: string
 	isActive: boolean
 	children: React.ReactNode
 }
 
-export function TabPanel({ id, isActive, children }: TabPanelProps) {
+export function TabPanel({ id, idPrefix, isActive, children }: TabPanelProps) {
 	return (
 		<Activity mode={isActive ? 'visible' : 'hidden'}>
-			<div role="tabpanel" id={panelId(id)} aria-labelledby={tabId(id)} className={styles.tabPanel}>
+			<div role="tabpanel" id={panelId(idPrefix, id)} aria-labelledby={tabId(idPrefix, id)} className={styles.tabPanel}>
 				{children}
 			</div>
 		</Activity>

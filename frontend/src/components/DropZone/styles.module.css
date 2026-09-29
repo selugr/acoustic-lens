@@ -1,0 +1,83 @@
+.zone {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 132px;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  border: 1.5px dashed var(--border-dashed);
+  border-radius: var(--radius-12);
+  background: var(--bg-sunken);
+  transition: border-color var(--transition-base), background-color var(--transition-base);
+}
+
+.dragOver {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.rejected {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* Visually hidden but focusable so the label link stays keyboard reachable */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.icon {
+  color: var(--text-2);
+}
+
+.title {
+  font-size: var(--fs-14);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+.titleAccent {
+  color: var(--accent);
+}
+
+.titleDanger {
+  color: var(--danger-text);
+}
+
+.sub {
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+
+.rejected .sub {
+  color: var(--text-2);
+}
+
+.browse {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  border-radius: var(--radius-6);
+}
+
+.browse:hover {
+  color: var(--accent-hover);
+}
+
+.input:focus-visible ~ .sub .browse {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

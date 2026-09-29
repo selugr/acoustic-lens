@@ -37,7 +37,7 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 
 ## Tasks
 - [x] T1 Foundation: tokens, fonts, title/favicon, base components (Button loading/disabled, Field with counter/error, Tabs a11y, StepCard, Alert, Chip, StatusPill), header + layout grid. Route: delegated (writer trigger, 2+ non-trivial files).
-- [ ] T2 Source step: generate form (disabled while loading, loading reset on error, counter), upload drop zone (drag-over, non-audio rejection, loaded summary with replace). Route: delegated.
+- [x] T2 Source step: generate form (disabled while loading, loading reset on error, counter), upload drop zone (drag-over, non-audio rejection, loaded summary with replace). Route: delegated.
 - [ ] T3 Space step: scene field with counter, example chips, loading state, auto-apply on generate, Reset to dry, error alert. Route: delegated.
 - [ ] T4 Listen step: scene diagram, summary + meters, raw JSON with copy, custom transport with A/B bypass in audio engine, context-suspended hint. Route: delegated.
 
@@ -48,7 +48,10 @@ Local artboard sources for this session: scratchpad `design/project/{Main,Mobile
 - All checks pass.
 
 ## Progress / evidence
-- T1 done (delegated writer): tests 48/48, check-types clean, biome exit 0 (2 pre-existing warnings in untouched files), build ok. RED observed for every new suite before implementation. Removed Badge/Card/Label/TextArea/AudioPlayer; added Field/StepCard/Alert/Chip/StatusPill/HeaderContainer; Tabs API is now items/value/onChange + TabPanel. VoiceGenerator loading reset moved to `finally`. Diff ~1,280 lines, mostly deletions of replaced components. Commit: `feat(frontend): redesign foundation tokens, base components and layout`.
+- T1 done (delegated writer): tests 48/48, check-types clean, biome exit 0 (2 pre-existing warnings in untouched files), build ok. RED observed for every new suite before implementation. Removed Badge/Card/Label/TextArea/AudioPlayer; added Field/StepCard/Alert/Chip/StatusPill/HeaderContainer; Tabs API is now items/value/onChange + TabPanel. VoiceGenerator loading reset moved to `finally`. Diff ~1,280 lines, mostly deletions of replaced components. Commit: `6fe7eb1 feat(frontend): redesign foundation tokens, base components and layout`.
+- T1 review: assessed medium (slice_budget_reached), consent granted, single reliability lens → approved and acknowledged (lineage review-e61f920013993aac). Reviewed boundary now 6fe7eb1. Advisory follow-ups folded into later tasks: VoiceGenerator loading-reset/error test (WARNING) → T2; Tabs per-instance ids via useId → T2; Build space busy guard + try/catch (pre-existing) → T3; layout step done/active test, hasSpace should mean "applied" → T3.
+
+- T2 done (delegated writer): tests 63/63 (parent re-ran), check-types clean, biome exit 0, build ok. RED observed (DropZone/SourceSummary missing, Tabs duplicate ids, VoiceGenerator 5/5 incl. unhandled rejection on throw). New DropZone, SourceSummary, SourceSummaryContainer, sourceIds; Tabs ids via useId (`idPrefix`); context `setAudioBlobUrl(url, label?)` stores `audioLabel`; failed generate keeps previous audio. Gaps: no test for duration probing or layout done state (layout test moves to T3). ~620 authored lines. Commit: `feat(frontend): redesign source step`.
 
 ## Next step
-T2 Source step.
+T3 Space step.
