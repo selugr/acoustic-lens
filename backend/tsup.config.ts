@@ -7,6 +7,7 @@ export default defineConfig({
 	target: 'node20',
 	clean: true,
 	splitting: false,
+	noExternal: [/.*/],
 	sourcemap: true,
 	tsconfig: './tsconfig.json',
 })
