@@ -12,6 +12,7 @@ coverage/
 
 # dependencies
 node_modules/
+.atl
 
 # misc
 .env
